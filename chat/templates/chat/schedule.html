@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Schedule for {{ date }} at {{ location }}</title>
+  <link rel="stylesheet" href="{% static 'chat/css/schedule.css' %}" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="{% static 'chat/images/favicon.ico' %}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="{% url 'chat_view' %}" class="logo">PLAN IT</a>
+    <ul class="nav-links">
+      <li><a href="{% url 'chat_view' %}">Generate</a></li>
+      <li><a href="{% url 'schedule_view' %}">My Schedule</a></li>
+      <li><a href="{% url 'weather_view' %}">Weather</a></li>
+      <li><a href="https://github.com/CMPT-276-SUMMER-2025/final-project-13-bays" target="_blank" rel="noopener noreferrer"> GitHub Repo</a>
+    </ul>
+  </nav>
+
+  <div class="hero">
+    <h1 id="title-schedule">Your Schedule for <span style="color: greenyellow"> {{ date }} </span> at <span style="color: greenyellow">{{ location }}</span></h1>
+
+    <div class="schedule-grid">
+      {% for act in activities %}
+      <div class="schedule-card">
+        <div class="card-header">
+          <span class="time">🕒 {{ act.time }}</span>
+          <span class="loc">📍 {{ act.location }}</span>
+        </div>
+        <div class="card-details">
+          <p>📝 {{ act.description }}</p>
+          <p class="weather-desc"
+            data-weather-code="{{ act.expected_weather_code }}">
+            {{ act.expected_weather|title }}
+          </p>
+          <p>
+            <span class="cost">💲 {{ act.cost|title }}</span>
+            &nbsp;
+            <span class="open-status">📖 {{ act.open_now|yesno:"Open Now,Closed"|title }}</span>
+            &nbsp;
+            <span class="rating">⭐ {{ act.rating }}</span>
+          </p>
+        </div>
+        <div class="card-footer">
+          <button class="button btn-complete">Complete</button>
+          <button class="cancel-btn btn-undo hidden">Undo</button>
+        </div>
+        <div class="feedback-display hidden" style="padding:1rem; background:rgba(255,255,255,0.03);">
+          <p class="feedback-stars"></p>
+          <p class="feedback-comment"></p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="ai-helper">
+      <h3>💬 Ask AI about your activities</h3>
+      <input
+        id="helper-question"
+        type="text"
+        placeholder="e.g. What should I bring for the bike tour?"
+      />
+      <button id="helper-send" class="button">Ask AI</button>
+      <div id="helper-reply" class="helper-reply hidden"></div>
+    </div>
+  
+    <div id="feedback-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Rate and Review</h3>
+        <div class="rating-stars">
+          <span data-value="1">☆</span>
+          <span data-value="2">☆</span>
+          <span data-value="3">☆</span>
+          <span data-value="4">☆</span>
+          <span data-value="5">☆</span>
+        </div>
+        <textarea id="feedback-text" placeholder="Leave your feedback..."></textarea>
+        <button id="feedback-cancel" class="cancel-btn">Cancel</button>
+        <button id="feedback-submit" class="button">Submit</button>
+      </div>
+    </div>
+
+    <div id="summary-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>🎉 Summary of Your Day!</h2>
+
+        <div id="loader-panel" class="hidden" style="display:flex; align-items:center; gap:.5rem;">
+          <span class="loader-text">Building summary…</span>
+          <button id="loader-cancel" class="cancel-btn">Cancel</button>
+        </div>
+
+        <div class="summary-body hidden">
+          <p id="day-summary" class="day-summary"></p>
+          <section class="reflections">
+            <h3>🤔 Reflections</h3>
+            <p id="day-reflections"></p>
+          </section>
+          <section class="accomplishments">
+            <h3>✅ What You Accomplished</h3>
+            <ul id="accomplishments-list"></ul>
+          </section>
+          <section class="next-step">
+            <h3>🚀 Next Step</h3>
+            <p id="next-step"></p>
+          </section>
+        </div>
+
+        <button id="close-summary" class="button hidden">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
+    }
+    window.csrftoken    = getCookie('csrftoken');
+    window.REFLECT_URL  = "{% url 'reflect_view' %}";
+    window.HELPER_URL   = "{% url 'helper_view'  %}";
+  </script>
+
+  <script src="{% static 'chat/js/schedule.js' %}"></script>
+</body>
+</html>
